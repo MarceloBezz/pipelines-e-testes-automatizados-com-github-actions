@@ -21,3 +21,4 @@ func HandleRequest() {
 	r.NoRoute(controllers.RotaNaoEncontrada)
 	_ = r.Run()
 }
+
