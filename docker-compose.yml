@@ -1,49 +1,31 @@
-name: Go
+services:
+  postgres:
+    image: "postgres"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=root
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
-jobs:
-  ci:
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: root
-          POSTGRES_DB: root
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U root"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=10
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.22'
-
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v6
-      with:
-        version: v1.59
-        args: controllers/ database/ models/ routes/
-
-    - name: Test
-      env:
-        DB_HOST: "127.0.0.1"
-        DB_PORT: "5432"
-        DB_USER: "root"
-        DB_PASSWORD: "root"
-        DB_NAME: "root"
-      run: go test -v ./...
+  app:
+    image: golang:1.22
+    command:
+      - go
+      - run
+      - main.go
+    volumes:
+      - ./:/app
+    working_dir: /app
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=root
+      - DB_PORT=5432
