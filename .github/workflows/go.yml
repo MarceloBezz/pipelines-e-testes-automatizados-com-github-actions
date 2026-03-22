@@ -2,9 +2,9 @@ name: Integração Contínua
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "cd" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "cd" ]
 
 jobs:
 
